@@ -1,0 +1,32 @@
+# Checks this repository with its own reusable workflows, plus actionlint.
+name: self-check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    uses: ./.github/workflows/python-tests.yml
+    with:
+      install: python -m pip install pytest
+      test: python -m pytest -q
+      cache: ""
+
+  hygiene:
+    uses: ./.github/workflows/hygiene.yml
+    with:
+      concordia-ref: ${{ github.sha }}
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color

@@ -1,0 +1,39 @@
+# Reusable: format-only hygiene check for public repositories (scripts/hygiene.py).
+#
+#   jobs:
+#     hygiene:
+#       uses: fairyofdata/Concordia/.github/workflows/hygiene.yml@v1
+#
+# The checker script is taken from this repository at `concordia-ref`.
+# Keep it equal to the tag in `uses:` (default v1).
+name: hygiene
+
+on:
+  workflow_call:
+    inputs:
+      concordia-ref:
+        description: Ref of this repository to take scripts/hygiene.py from
+        type: string
+        default: v1
+      strict:
+        description: Treat warnings as errors
+        type: boolean
+        default: false
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: fairyofdata/Concordia
+          ref: ${{ inputs.concordia-ref }}
+          path: .concordia
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Check
+        run: python .concordia/scripts/hygiene.py --root . ${{ inputs.strict && '--strict' || '' }}

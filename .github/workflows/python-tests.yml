@@ -1,0 +1,58 @@
+# Reusable: install and run a Python test suite.
+#
+#   jobs:
+#     tests:
+#       uses: fairyofdata/Concordia/.github/workflows/python-tests.yml@v1
+#       with:
+#         python-versions: '["3.12"]'
+#         install: python -m pip install -r requirements.txt
+#         test: python -m pytest -q
+name: python-tests
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: JSON array of Python versions, one job each
+        type: string
+        default: '["3.12"]'
+      install:
+        description: Shell command that installs dependencies
+        type: string
+        default: python -m pip install -r requirements.txt
+      test:
+        description: Shell command that runs the tests
+        type: string
+        default: python -m pytest -q
+      cache:
+        description: setup-python cache type ('pip', or '' for none). 'pip' needs a requirements or pyproject file
+        type: string
+        default: pip
+      working-directory:
+        description: Directory to run install and test in
+        type: string
+        default: .
+
+jobs:
+  test:
+    name: test (${{ matrix.python }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ${{ fromJSON(inputs.python-versions) }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: ${{ inputs.cache }}
+      - name: Install
+        run: ${{ inputs.install }}
+      - name: Test
+        run: ${{ inputs.test }}
