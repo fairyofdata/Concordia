@@ -48,6 +48,27 @@ jobs:
 `hygiene.yml` の入力は `strict`（警告も失敗にする、既定 `false`）と `concordia-ref`（チェック用スクリプトを取る版、`uses:` のタグと同じに）です。
 意図して除外するファイル（テストデータなど）は、リポジトリ直下の `.concordia-allow` に glob で一行ずつ書きます。
 
+### テストがないリポジトリ
+
+テストがない公開リポジトリは、衛生チェックだけを単独で呼びます。ファイルは `.github/workflows/hygiene.yml`。
+
+```yaml
+name: hygiene
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    uses: fairyofdata/Concordia/.github/workflows/hygiene.yml@v1
+```
+
+非公開リポジトリは `python-tests.yml` だけを呼びます。衛生チェックは公開リポジトリに入ってはいけないものを防ぐ仕組みなので、非公開では防ぐ対象がありません。公開に切り替える前に `scripts/hygiene.py` をローカルで走らせ、0 件を確かめます（[ADR 0002](docs/adr/0002-hygiene-only-public.md)）。
+
 チェックは決まった形式だけを見ます。ファイルの中身が何についてのものかは判断しません。
 
 ## 版

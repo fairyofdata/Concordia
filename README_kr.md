@@ -48,6 +48,27 @@ jobs:
 `hygiene.yml` 입력은 `strict`(경고도 실패로, 기본 `false`)와 `concordia-ref`(검사 스크립트를 가져올 판, `uses:`의 태그와 같게)입니다.
 일부러 빼야 할 파일(테스트 데이터 등)은 저장소 루트의 `.concordia-allow`에 glob으로 한 줄씩 적습니다.
 
+### 테스트가 없는 저장소
+
+테스트가 없는 공개 저장소는 위생 검사만 단독으로 부릅니다. 파일은 `.github/workflows/hygiene.yml`.
+
+```yaml
+name: hygiene
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    uses: fairyofdata/Concordia/.github/workflows/hygiene.yml@v1
+```
+
+비공개 저장소는 `python-tests.yml`만 부릅니다. 위생 검사는 공개 저장소에 들어가면 안 되는 것을 막는 장치라, 비공개에서는 막을 일이 없습니다. 공개로 바꾸기 전에 `scripts/hygiene.py`를 로컬로 돌려 0건을 확인합니다([ADR 0002](docs/adr/0002-hygiene-only-public.md)).
+
 검사는 정해진 형식만 봅니다. 파일 내용이 무엇에 관한 것인지는 판단하지 않습니다.
 
 ## 판

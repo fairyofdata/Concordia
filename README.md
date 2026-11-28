@@ -47,6 +47,27 @@ jobs:
 `hygiene.yml` inputs: `strict` (warnings fail too, default `false`) and `concordia-ref` (where the checker script comes from; keep it equal to the tag in `uses:`).
 To skip files on purpose (test fixtures, for example), list globs in `.concordia-allow` at the repository root.
 
+### Repositories without tests
+
+A public repository with no test suite calls the hygiene workflow on its own, as `.github/workflows/hygiene.yml`:
+
+```yaml
+name: hygiene
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    uses: fairyofdata/Concordia/.github/workflows/hygiene.yml@v1
+```
+
+Private repositories call `python-tests.yml` only. The hygiene check exists to keep things out of public repositories, so in a private one there is nothing for it to prevent. Run `scripts/hygiene.py` locally and get to zero before making a repository public ([ADR 0002](docs/adr/0002-hygiene-only-public.md)).
+
 The checker matches fixed formats only. It does not judge what a file is about.
 
 ## Versions
